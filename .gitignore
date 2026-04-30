@@ -1,0 +1,65 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Build outputs
+# =========================
+build/
+dist/
+out/
+*.pyc
+__pycache__/
+
+# =========================
+# Environment files
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# React / CRA
+# =========================
+coverage/
+.cache/
+.vscode/
+.DS_Store
+
+# =========================
+# Python / Flask
+# =========================
+venv/
+ENV/
+.venv/
+instance/
+*.sqlite3
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# System / OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDEs
+# =========================
+.idea/
+.vscode/
+
+# =========================
+# Optional (Docker)
+# =========================
+docker-compose.override.yml
+
+

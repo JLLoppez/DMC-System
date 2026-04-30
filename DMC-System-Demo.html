@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DMC System — Digital Management Consultant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-void:#080a0f;--bg-base:#0d1117;--bg-surface:#111827;--bg-elevated:#1a2235;
+  --bg-glass:rgba(255,255,255,0.03);--bg-glass-hover:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.07);--border-accent:rgba(99,179,237,0.3);
+  --text-primary:#f0f4ff;--text-secondary:#8b9ab8;--text-muted:#4a5568;
+  --accent-blue:#4d9ef7;--accent-cyan:#00d4ff;--accent-green:#00e5a0;
+  --accent-amber:#f59e0b;--accent-red:#f56565;--accent-purple:#a78bfa;
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:24px;
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg-void);color:var(--text-primary);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg-void)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.app{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sidebar{width:228px;flex-shrink:0;background:var(--bg-base);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:relative;z-index:10}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent-blue),transparent)}
+.sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent-blue),var(--accent-cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:13px;color:#000;margin-bottom:10px;box-shadow:0 0 24px rgba(77,158,247,0.2)}
+.logo-text{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-primary);line-height:1.2}
+.logo-sub{font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+.nav-section-label{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);padding:10px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 20px;margin:1px 8px;border-radius:var(--radius-md);cursor:pointer;transition:var(--transition);font-size:13px;font-weight:400;color:var(--text-secondary);position:relative;border:1px solid transparent}
+.nav-item:hover{background:var(--bg-glass-hover);color:var(--text-primary)}
+.nav-item.active{background:rgba(77,158,247,0.08);color:var(--accent-blue);border-color:rgba(77,158,247,0.15)}
+.nav-item.active::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:14px;background:var(--accent-blue);border-radius:0 2px 2px 0;box-shadow:2px 0 10px var(--accent-blue)}
+.sidebar-footer{margin-top:auto;padding:14px 20px 0;border-top:1px solid var(--border)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-green);box-shadow:0 0 6px var(--accent-green);animation:pulse 2s infinite;display:inline-block;margin-right:6px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(8,10,15,0.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.page-title h1{font-family:var(--font-display);font-size:19px;font-weight:700}
+.page-title p{font-size:11px;color:var(--text-muted);margin-top:2px}
+.industry-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg-glass);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-family:var(--font-body)}
+.industry-btn:hover{border-color:var(--accent-blue);color:var(--text-primary)}
+.content{padding:28px;flex:1}
+/* CARDS */
+.card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;transition:var(--transition)}
+.card:hover{border-color:rgba(255,255,255,0.1)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-title{font-family:var(--font-display);font-size:13.5px;font-weight:600;color:var(--text-primary)}
+.card-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden;transition:var(--transition)}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--radius-lg) var(--radius-lg) 0 0}
+.stat-card.blue::after{background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan))}
+.stat-card.green::after{background:var(--accent-green)}
+.stat-card.amber::after{background:var(--accent-amber)}
+.stat-card.purple::after{background:var(--accent-purple)}
+.stat-card.cyan::after{background:linear-gradient(90deg,var(--accent-cyan),var(--accent-blue))}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(77,158,247,0.1)}
+.stat-icon{width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:12px}
+.stat-icon.blue{background:rgba(77,158,247,0.1)}
+.stat-icon.green{background:rgba(0,229,160,0.1)}
+.stat-icon.amber{background:rgba(245,158,11,0.1)}
+.stat-icon.purple{background:rgba(167,139,250,0.1)}
+.stat-icon.cyan{background:rgba(0,212,255,0.1)}
+.stat-value{font-family:var(--font-display);font-size:26px;font-weight:700;line-height:1}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.stat-change{font-size:10px;margin-top:6px;color:var(--accent-green)}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-md);font-size:12.5px;font-weight:500;cursor:pointer;border:none;transition:var(--transition);font-family:var(--font-body)}
+.btn-primary{background:var(--accent-blue);color:#000;font-weight:600}
+.btn-primary:hover{background:#6baef8;transform:translateY(-1px);box-shadow:0 4px 20px rgba(77,158,247,0.4)}
+.btn-secondary{background:var(--bg-glass-hover);color:var(--text-secondary);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--bg-elevated);color:var(--text-primary)}
+.btn-sm{padding:5px 11px;font-size:11.5px}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10.5px;font-weight:500}
+.b-blue{background:rgba(77,158,247,0.1);color:var(--accent-blue);border:1px solid rgba(77,158,247,0.2)}
+.b-green{background:rgba(0,229,160,0.1);color:var(--accent-green);border:1px solid rgba(0,229,160,0.2)}
+.b-amber{background:rgba(245,158,11,0.1);color:var(--accent-amber);border:1px solid rgba(245,158,11,0.2)}
+.b-purple{background:rgba(167,139,250,0.1);color:var(--accent-purple);border:1px solid rgba(167,139,250,0.2)}
+.b-gray{background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid var(--border)}
+/* TABLE */
+.dtable{width:100%;border-collapse:collapse}
+.dtable th{text-align:left;padding:9px 14px;font-size:10.5px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.dtable td{padding:12px 14px;font-size:13px;color:var(--text-secondary);border-bottom:1px solid var(--border)}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tr:hover td{background:var(--bg-glass);color:var(--text-primary)}
+.t-up{color:var(--accent-green);font-weight:600}
+.t-down{color:var(--accent-red);font-weight:600}
+/* ACTIVITY */
+.act-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.act-dot.scrape{background:var(--accent-blue);box-shadow:0 0 7px var(--accent-blue)}
+.act-dot.memo{background:var(--accent-green);box-shadow:0 0 7px var(--accent-green)}
+.act-dot.framework{background:var(--accent-purple);box-shadow:0 0 7px var(--accent-purple)}
+.act-dot.upload{background:var(--accent-amber);box-shadow:0 0 7px var(--accent-amber)}
+.act-text{font-size:12.5px;color:var(--text-secondary);line-height:1.4}
+.act-time{font-size:10.5px;color:var(--text-muted);margin-top:2px}
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:var(--radius-lg);overflow:hidden}
+.swot-cell{padding:18px;min-height:150px;border:1px solid var(--border)}
+.swot-cell.strengths{background:rgba(0,229,160,0.04)}
+.swot-cell.weaknesses{background:rgba(245,101,101,0.04)}
+.swot-cell.opportunities{background:rgba(77,158,247,0.04)}
+.swot-cell.threats{background:rgba(245,158,11,0.04)}
+.swot-label{font-family:var(--font-display);font-size:10.5px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:10px}
+.swot-cell.strengths .swot-label{color:var(--accent-green)}
+.swot-cell.weaknesses .swot-label{color:var(--accent-red)}
+.swot-cell.opportunities .swot-label{color:var(--accent-blue)}
+.swot-cell.threats .swot-label{color:var(--accent-amber)}
+.swot-item{font-size:12px;color:var(--text-secondary);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);line-height:1.4}
+.swot-item:last-child{border-bottom:none}
+/* PORTER */
+.force-item{display:flex;align-items:flex-start;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)}
+.force-item:last-child{border-bottom:none}
+.force-name{font-size:12.5px;font-weight:500;color:var(--text-primary);width:170px;flex-shrink:0}
+.force-track{height:4px;background:var(--bg-elevated);border-radius:2px;flex:1;overflow:hidden;margin-bottom:5px}
+.force-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.force-fill.high{background:var(--accent-red)}
+.force-fill.med{background:var(--accent-amber)}
+.force-fill.low{background:var(--accent-green)}
+.force-desc{font-size:11.5px;color:var(--text-muted);line-height:1.5}
+/* PESTEL */
+.pestel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pestel-cell{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px}
+.pestel-letter{font-family:var(--font-display);font-size:21px;font-weight:800;line-height:1;margin-bottom:3px}
+.pestel-title{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
+.pestel-text{font-size:11.5px;color:var(--text-secondary);line-height:1.5}
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--bg-elevated);border-radius:var(--radius-md);padding:4px;border:1px solid var(--border)}
+.tab{padding:6px 14px;border-radius:var(--radius-sm);font-size:12.5px;cursor:pointer;transition:var(--transition);color:var(--text-muted);border:none;background:transparent;font-family:var(--font-body)}
+.tab:hover{color:var(--text-secondary);background:var(--bg-glass)}
+.tab.active{background:var(--bg-surface);color:var(--text-primary);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn 0.15s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:26px;width:460px;max-width:90vw;max-height:85vh;overflow-y:auto;animation:slideUp 0.2s ease;box-shadow:0 24px 80px rgba(0,0,0,0.5)}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-family:var(--font-display);font-size:17px;font-weight:700;margin-bottom:18px}
+/* FORM */
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11.5px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;letter-spacing:0.03em}
+.fi,.fs{width:100%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:9px 13px;font-size:13px;color:var(--text-primary);font-family:var(--font-body);transition:var(--transition);outline:none}
+.fi:focus,.fs:focus{border-color:var(--accent-blue);box-shadow:0 0 0 3px rgba(77,158,247,0.1)}
+.fi::placeholder{color:var(--text-muted)}
+.fs option{background:var(--bg-surface)}
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;transition:var(--transition)}
+.upload-zone:hover{border-color:var(--accent-blue);background:rgba(77,158,247,0.04)}
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:13px 17px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--text-primary);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:200;animation:toastIn 0.3s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* MEMO */
+.memo-content{background:var(--bg-elevated);border-radius:var(--radius-lg);padding:24px;border:1px solid var(--border)}
+.memo-sec-title{font-family:var(--font-display);font-size:11.5px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-blue);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.memo-sec-title::before{content:'';display:block;width:14px;height:2px;background:var(--accent-blue)}
+.memo-body{font-size:13.5px;color:var(--text-secondary);line-height:1.7}
+.memo-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.memo-list li{display:flex;gap:9px;font-size:13px;color:var(--text-secondary);line-height:1.5}
+.memo-list li::before{content:'→';color:var(--accent-blue);flex-shrink:0;font-weight:600}
+/* ROI TABLE */
+.roi-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)}
+.roi-row:last-child{border-bottom:none}
+/* HIDDEN */
+.hidden{display:none!important}
+/* CHART CONTAINER */
+canvas{max-height:220px}
+/* MOBILE NAV */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--bg-base);border-top:1px solid var(--border);padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+.mob-nav-items{display:flex;justify-content:space-around;align-items:center}
+.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;border-radius:var(--radius-md);cursor:pointer;color:var(--text-muted);font-size:10px;font-weight:500;min-width:52px;transition:var(--transition)}
+.mob-nav-item .mi{font-size:18px;line-height:1}
+.mob-nav-item.active{color:var(--accent-blue)}
+/* TABLE SCROLL WRAPPER */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .g2,.g3,.g21{grid-template-columns:1fr}
+  .pestel-grid{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .mobile-nav{display:block}
+  .main{padding-bottom:72px}
+  .topbar{padding:11px 14px}
+  .topbar h1{font-size:16px}
+  #page-sub{display:none}
+  .content{padding:14px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .stat-card{padding:13px}
+  .stat-value{font-size:21px}
+  .stat-icon{width:28px;height:28px;font-size:13px;margin-bottom:8px}
+  .g2,.g3,.g21{grid-template-columns:1fr;gap:12px}
+  .card{padding:14px}
+  .card-header{flex-wrap:wrap;gap:8px}
+  .swot-grid{grid-template-columns:1fr}
+  .swot-cell{min-height:unset}
+  .pestel-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .pestel-letter{font-size:17px}
+  .pestel-text{font-size:11px}
+  .force-item{flex-direction:column;gap:6px}
+  .force-name{width:auto}
+  .modal{width:calc(100vw - 28px);padding:18px;border-radius:var(--radius-lg)}
+  .tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%}
+  .tab{white-space:nowrap;padding:6px 11px;font-size:12px}
+  .toast{left:14px;right:14px;bottom:78px}
+  .dtable{min-width:520px}
+}
+@media(max-width:420px){
+  .pestel-grid{grid-template-columns:1fr}
+  .content{padding:10px}
+  .card{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">DMC</div>
+      <div class="logo-text">Management</div>
+      <div class="logo-sub">Consultant System</div>
+    </div>
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)"><span>⬡</span> Dashboard</div>
+    <div class="nav-section-label">Data</div>
+    <div class="nav-item" onclick="nav('sources',this)"><span>⊞</span> Data Sources</div>
+    <div class="nav-section-label">Analysis</div>
+    <div class="nav-item" onclick="nav('analytics',this)"><span>◳</span> Analytics</div>
+    <div class="nav-item" onclick="nav('memos',this)"><span>◈</span> Memos</div>
+    <div class="nav-item" onclick="nav('frameworks',this)"><span>◉</span> Frameworks</div>
+    <div class="sidebar-footer">
+      <div style="font-size:11.5px;color:var(--text-muted);display:flex;align-items:center"><span class="status-dot"></span>All systems operational</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:4px">v1.0.0 · MVP</div>
+    </div>
+  </aside>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mobile-nav">
+    <div class="mob-nav-items">
+      <div class="mob-nav-item active" onclick="nav('dashboard',this)" data-page="dashboard"><span class="mi">⬡</span>Dashboard</div>
+      <div class="mob-nav-item" onclick="nav('sources',this)" data-page="sources"><span class="mi">⊞</span>Sources</div>
+      <div class="mob-nav-item" onclick="nav('analytics',this)" data-page="analytics"><span class="mi">◳</span>Analytics</div>
+      <div class="mob-nav-item" onclick="nav('memos',this)" data-page="memos"><span class="mi">◈</span>Memos</div>
+      <div class="mob-nav-item" onclick="nav('frameworks',this)" data-page="frameworks"><span class="mi">◉</span>Frameworks</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title">
+        <h1 id="page-h1">Overview</h1>
+        <p id="page-sub">System summary and recent activity</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="industry-btn" onclick="toggleIndustry()">
+          <span id="ind-dot" style="color:var(--accent-blue)">●</span>
+          <span id="ind-label">Banking</span>
+          <span style="font-size:9px;opacity:0.5">⇄</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="pg-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card blue"><div class="stat-icon blue">⊞</div><div class="stat-value">5</div><div class="stat-label">Data Sources</div><div class="stat-change">↑ +1 this week</div></div>
+          <div class="stat-card cyan"><div class="stat-icon cyan">◳</div><div class="stat-value">565</div><div class="stat-label">Total Records</div><div class="stat-change">↑ +203 today</div></div>
+          <div class="stat-card green"><div class="stat-icon green">◈</div><div class="stat-value">2</div><div class="stat-label">Memos Generated</div><div class="stat-change">↑ All complete</div></div>
+          <div class="stat-card purple"><div class="stat-icon purple">◉</div><div class="stat-value">5</div><div class="stat-label">Frameworks Run</div><div class="stat-change">↑ 2 industries</div></div>
+          <div class="stat-card amber"><div class="stat-icon amber">⏱</div><div class="stat-value">34</div><div class="stat-label">Hours Saved</div><div class="stat-change">↑ vs manual</div></div>
+        </div>
+        <div class="g21" style="margin-bottom:18px">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Records Collected Over Time</div><div class="card-sub">Daily accumulation across all sources</div></div><span class="badge b-blue">7 Days</span></div>
+            <canvas id="trendChart"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">By Industry</div></div>
+            <canvas id="industryChart"></canvas>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recent Activity</div><span class="badge b-gray">Live</span></div>
+            <div class="act-item"><div class="act-dot scrape"></div><div><div class="act-text">World Bank data collected — 142 records</div><div class="act-time">2 hours ago</div></div></div>
+            <div class="act-item"><div class="act-dot memo"></div><div><div class="act-text">Banking Q1 memo generated successfully</div><div class="act-time">4 hours ago</div></div></div>
+            <div class="act-item"><div class="act-dot framework"></div><div><div class="act-text">PESTEL analysis completed for Banking</div><div class="act-time">5 hours ago</div></div></div>
+            <div class="act-item"><div class="act-dot scrape"></div><div><div class="act-text">StatsSA data collected — 203 records</div><div class="act-time">6 hours ago</div></div></div>
+            <div class="act-item"><div class="act-dot upload"></div><div><div class="act-text">IMF CSV file uploaded and validated</div><div class="act-time">1 day ago</div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">ROI Summary</div><span class="badge b-green">+ve</span></div>
+            <div class="roi-row"><span style="font-size:12.5px;color:var(--text-muted)">Time per report (manual)</span><span style="font-weight:600;color:var(--accent-red)">22–38 hrs</span></div>
+            <div class="roi-row"><span style="font-size:12.5px;color:var(--text-muted)">Time per report (system)</span><span style="font-weight:600;color:var(--accent-green)">3–4 hrs</span></div>
+            <div class="roi-row"><span style="font-size:12.5px;color:var(--text-muted)">Hours saved this month</span><span style="font-weight:600;color:var(--accent-blue)">34 hrs</span></div>
+            <div class="roi-row"><span style="font-size:12.5px;color:var(--text-muted)">Value at R1,500/hr</span><span style="font-weight:600;color:var(--accent-amber)">R51,000+</span></div>
+            <div class="roi-row"><span style="font-size:12.5px;color:var(--text-muted)">Payback period</span><span style="font-weight:600;color:var(--accent-purple)">1.5–3 months</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOURCES -->
+      <div id="pg-sources" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="display:flex;gap:8px"><span class="badge b-blue">5 sources</span><span class="badge b-green">5 active</span></div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-secondary" onclick="showUpload()">↑ Upload CSV</button>
+            <button class="btn btn-primary" onclick="showAddSource()">⊕ Add Source</button>
+          </div>
+        </div>
+        <div class="g3" style="margin-bottom:20px">
+          <div class="stat-card green"><div class="stat-value">5</div><div class="stat-label">Active Sources</div></div>
+          <div class="stat-card blue"><div class="stat-value" id="src-total-records">565</div><div class="stat-label">Total Records</div></div>
+          <div class="stat-card amber"><div class="stat-value">0</div><div class="stat-label">Pending Review</div></div>
+        </div>
+        <div class="card">
+          <div class="tscroll">
+          <table class="dtable">
+            <thead><tr><th>Source Name</th><th>Industry</th><th>Records</th><th>Last Scraped</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="sources-tbody">
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div id="pg-analytics" class="hidden">
+        <div style="margin-bottom:16px"><span class="badge b-blue" id="analytics-badge">Banking Sector · Q4 2025</span></div>
+        <div class="tabs" style="margin-bottom:18px;width:fit-content">
+          <button class="tab active" onclick="analyticsTab('table',this)">Comparison Table</button>
+          <button class="tab" onclick="analyticsTab('trends',this)">Trend Chart</button>
+          <button class="tab" onclick="analyticsTab('market',this)">Market Share</button>
+        </div>
+        <div id="an-table">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title" id="an-table-title">Banking — Key Performance Metrics</div><div class="card-sub">Quarterly comparison · Source: World Bank, IMF, StatsSA</div></div><button class="btn btn-secondary btn-sm" onclick="toast('Table exported to Excel','↓')">↓ Export</button></div>
+            <div class="tscroll"><table class="dtable" id="analytics-table"></table></div>
+          </div>
+        </div>
+        <div id="an-trends" class="hidden">
+          <div class="card">
+            <div class="card-header"><div><div class="card-title" id="an-trend-title">Banking — Trend Analysis</div><div class="card-sub">Key metrics over time · 2025</div></div><button class="btn btn-secondary btn-sm" onclick="toast('Chart exported as PNG','↓')">↓ Export PNG</button></div>
+            <canvas id="trendAnalyticsChart"></canvas>
+          </div>
+        </div>
+        <div id="an-market" class="hidden">
+          <div class="g2">
+            <div class="card">
+              <div class="card-header"><div><div class="card-title">Market Share</div><div class="card-sub" id="mkt-sub">Banking · Q4 2025</div></div></div>
+              <canvas id="marketChart"></canvas>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Breakdown</div></div>
+              <div id="market-breakdown"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEMOS -->
+      <div id="pg-memos" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <span class="badge b-blue" id="memos-count">2 memos</span>
+          <button class="btn btn-primary" onclick="showGenMemo()">◈ Generate Memo</button>
+        </div>
+        <div id="memos-list" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+
+      <!-- FRAMEWORKS -->
+      <div id="pg-frameworks" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div class="tabs">
+            <button class="tab active" onclick="fwTab('SWOT',this)">SWOT</button>
+            <button class="tab" onclick="fwTab('PESTEL',this)">PESTEL</button>
+            <button class="tab" onclick="fwTab('Porter',this)">Porter's Five Forces</button>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-secondary btn-sm" onclick="toast('Framework exported as PDF','↓')">↓ Export</button>
+            <button class="btn btn-primary btn-sm" onclick="runFramework()">▶ Run Analysis</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px">
+          <span class="badge b-blue" id="fw-ind-badge">Banking</span>
+          <span class="badge b-purple" id="fw-type-badge">SWOT</span>
+          <span style="font-size:11px;color:var(--text-muted)">Based on collected data · January 2026</span>
+        </div>
+        <div id="fw-swot"><div class="swot-grid" id="swot-grid"></div></div>
+        <div id="fw-pestel" class="hidden"><div class="pestel-grid" id="pestel-grid"></div></div>
+        <div id="fw-porter" class="hidden"><div class="card" id="porter-card"></div></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODALS -->
+<div id="modal-add" class="modal-bg hidden" onclick="closeModal('modal-add')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Add Data Source</div>
+    <div class="fg"><label class="fl">Source Name</label><input class="fi" id="src-name" placeholder="e.g. Reserve Bank Publications" /></div>
+    <div class="fg"><label class="fl">URL</label><input class="fi" id="src-url" placeholder="https://..." /></div>
+    <div class="fg"><label class="fl">Industry</label><select class="fs" id="src-ind"><option>Banking</option><option>Telecom</option></select></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add')">Cancel</button>
+      <button class="btn btn-primary" onclick="addSource()">Add Source</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-upload" class="modal-bg hidden" onclick="closeModal('modal-upload')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Upload CSV / Excel</div>
+    <div class="fg"><label class="fl">Industry</label><select class="fs" id="up-ind"><option>Banking</option><option>Telecom</option></select></div>
+    <div class="upload-zone" onclick="document.getElementById('file-inp').click()">
+      <div style="font-size:28px;margin-bottom:10px">📂</div>
+      <div style="font-size:13.5px;color:var(--text-secondary)">Drop CSV or Excel file here</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">or click to browse · Max 50MB</div>
+      <input id="file-inp" type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleUpload(this)" />
+    </div>
+    <div style="margin-top:18px;text-align:right"><button class="btn btn-secondary" onclick="closeModal('modal-upload')">Cancel</button></div>
+  </div>
+</div>
+
+<div id="modal-memo" class="modal-bg hidden" onclick="closeModal('modal-memo')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Generate Strategic Memo</div>
+    <div class="fg"><label class="fl">Title (optional)</label><input class="fi" id="memo-title" placeholder="Strategic Analysis — January 2026" /></div>
+    <div class="fg"><label class="fl">Industry</label><select class="fs" id="memo-ind"><option>Banking</option><option>Telecom</option></select></div>
+    <div class="fg">
+      <label class="fl">Frameworks to Include</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+        <button class="btn btn-primary btn-sm fw-btn" data-fw="SWOT" onclick="toggleFw(this)">SWOT</button>
+        <button class="btn btn-secondary btn-sm fw-btn" data-fw="PESTEL" onclick="toggleFw(this)">PESTEL</button>
+        <button class="btn btn-secondary btn-sm fw-btn" data-fw="Porter" onclick="toggleFw(this)">Porter's Five Forces</button>
+      </div>
+    </div>
+    <div style="background:var(--bg-elevated);border-radius:8px;padding:11px;font-size:11.5px;color:var(--text-muted);margin-bottom:16px">ℹ Uses data from your active sources to generate a structured memo with citations, findings, and recommendations.</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="closeModal('modal-memo')">Cancel</button>
+      <button class="btn btn-primary" onclick="generateMemo()">◈ Generate</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-el" class="toast hidden"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const BANKING_TABLE = {
+  headers:['Metric','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Trend'],
+  rows:[
+    ['GDP Contribution (%)','7.4','7.6','7.9','8.2','↑'],
+    ['NPL Ratio (%)','4.2','4.0','3.8','3.6','↓'],
+    ['ROE (%)','14.1','14.8','15.2','15.7','↑'],
+    ['Capital Adequacy (%)','16.2','16.5','16.8','17.1','↑'],
+    ['Net Interest Margin (%)','3.8','3.7','3.6','3.5','↓'],
+    ['Cost-to-Income Ratio (%)','56.1','54.3','53.0','51.8','↓'],
+  ]
+};
+const TELECOM_TABLE = {
+  headers:['Metric','Q1 2025','Q2 2025','Q3 2025','Q4 2025','Trend'],
+  rows:[
+    ['Mobile Penetration (%)','68','71','75','79','↑'],
+    ['ARPU (ZAR)','185','192','198','205','↑'],
+    ['Churn Rate (%)','3.2','2.9','2.6','2.4','↓'],
+    ['Data Usage (GB/user)','6.2','7.1','8.4','9.8','↑'],
+    ['5G Coverage (%)','12','18','26','35','↑'],
+    ['EBITDA Margin (%)','31','32','33','34','↑'],
+  ]
+};
+const BANKING_MARKET=[{n:'Standard Bank',v:28},{n:'FirstRand',v:25},{n:'Absa Group',v:22},{n:'Nedbank',v:17},{n:'Other',v:8}];
+const TELECOM_MARKET=[{n:'Vodacom',v:35},{n:'MTN',v:30},{n:'Cell C',v:20},{n:'Telkom',v:12},{n:'Other',v:3}];
+const COLORS=['#4d9ef7','#00e5a0','#a78bfa','#f59e0b','#f56565'];
+const BANKING_SWOT={
+  strengths:['Strong capital adequacy ratios above regulatory minimums','Established digital banking infrastructure','Diversified revenue streams across retail and corporate'],
+  weaknesses:['Rising cost-to-income ratio pressuring margins','Legacy core banking systems limiting agility','Exposure to unsecured consumer credit risk'],
+  opportunities:['Financial inclusion driving new customer segments','Open banking regulation enabling ecosystem plays','Cross-border payment corridors in SADC region'],
+  threats:['Fintech disruption in payments and lending','Interest rate volatility impacting NIM','Cybersecurity threats and data breach risk']
+};
+const TELECOM_SWOT={
+  strengths:['High mobile penetration driving subscriber growth','Robust 4G/LTE network infrastructure','Strong brand recognition across sub-Saharan Africa'],
+  weaknesses:['Slow 5G rollout compared to global peers','High spectrum acquisition costs','Customer satisfaction scores below global benchmarks'],
+  opportunities:['IoT and enterprise connectivity demand acceleration','Rural connectivity subsidies from government','Mobile money and fintech partnership opportunities'],
+  threats:['OTT players reducing voice and SMS revenue','Price wars compressing ARPU','Regulatory uncertainty on spectrum allocation']
+};
+const BANKING_PESTEL={
+  Political:'Stable regulatory environment under SARB oversight; policy continuity post-2024 elections supports sector confidence.',
+  Economic:'GDP growth of 1.8% in 2025; inflation moderating toward 4.5% target; repo rate at 7.25% influencing lending activity.',
+  Social:'Growing middle class demanding digital-first banking; financial literacy initiatives broadening addressable market.',
+  Technological:'Cloud adoption accelerating; AI-driven credit scoring improving risk management; blockchain pilots underway.',
+  Environmental:'ESG mandates requiring green finance disclosure; climate risk stress testing now regulatory requirement.',
+  Legal:'POPIA compliance requiring significant data governance investment; Basel III finalisation impacts capital planning.'
+};
+const TELECOM_PESTEL={
+  Political:'Government prioritising digital inclusion; ICT White Paper signals supportive regulatory intent.',
+  Economic:'Consumer spending constrained by inflation; enterprise digitisation budgets expanding; ZAR volatility affects capex.',
+  Social:'Youth-dominant population driving mobile-first services; remote work normalising data consumption.',
+  Technological:'5G deployment accelerating; edge computing enabling new B2B services; eSIM adoption growing.',
+  Environmental:'Tower electrification targets; carbon footprint reporting mandatory for JSE-listed entities.',
+  Legal:'ICASA licensing reforms; data localisation requirements under consideration; POPIA enforcement active.'
+};
+const BANKING_PORTER={
+  'Competitive Rivalry':{r:4,d:'High concentration among Big 4 banks; price competition intensifying in retail banking; differentiation shifting to digital experience.'},
+  'Threat of New Entrants':{r:2,d:'High capital requirements and regulatory barriers limit traditional entry; neobanks face lower barriers.'},
+  'Threat of Substitutes':{r:4,d:'Mobile money platforms, crypto, and buy-now-pay-later services substituting traditional banking products.'},
+  'Buyer Power':{r:3,d:'Retail customers have moderate switching capability; corporate clients leverage scale for preferential pricing.'},
+  'Supplier Power':{r:2,d:'Core banking vendors have leverage; cloud providers increasing competition reduces dependency.'}
+};
+const TELECOM_PORTER={
+  'Competitive Rivalry':{r:4,d:'Three major operators dominate; aggressive price competition on data bundles; brand loyalty eroding.'},
+  'Threat of New Entrants':{r:2,d:'Spectrum scarcity and infrastructure costs create high barriers; MVNOs present lower-cost entry points.'},
+  'Threat of Substitutes':{r:5,d:'OTT communication apps (WhatsApp, Zoom) substituting voice and SMS revenue streams significantly.'},
+  'Buyer Power':{r:3,d:'Consumers increasingly price-sensitive; low switching costs between operators; MVNO options expanding.'},
+  'Supplier Power':{r:2,d:'Network equipment vendors consolidated (Huawei, Ericsson, Nokia); tower companies gaining bargaining power.'}
+};
+
+let SOURCES=[
+  {id:'1',name:'World Bank Open Data',url:'data.worldbank.org',industry:'Banking',status:'active',scraped:'30 Jan 2026, 08:00',records:142},
+  {id:'2',name:'IMF Data Portal',url:'imf.org/data',industry:'Banking',status:'active',scraped:'30 Jan 2026, 09:15',records:98},
+  {id:'3',name:'GSMA Intelligence',url:'gsma.com/intelligence',industry:'Telecom',status:'active',scraped:'29 Jan 2026, 14:00',records:67},
+  {id:'4',name:'ITU Statistics',url:'itu.int/stats',industry:'Telecom',status:'active',scraped:'28 Jan 2026, 11:30',records:55},
+  {id:'5',name:'StatsSA',url:'statssa.gov.za',industry:'Banking',status:'active',scraped:'30 Jan 2026, 07:45',records:203},
+];
+let MEMOS=[
+  {id:'1',title:'South African Banking Sector Q1 2026 Analysis',industry:'Banking',date:'30 Jan 2026',frameworks:['SWOT','PESTEL'],citations:24,content:{summary:'This strategic analysis examines the Banking sector using macroeconomic indicators from approved public datasets. Key findings indicate moderate growth momentum with structural challenges requiring attention.',findings:['GDP contribution of 8.2% in Q4 2025, up from 7.9% in Q3 2025.','Inflation pressures above the 3–6% target band, influencing consumer lending.','Digital adoption grew 34% YoY in mobile-first service delivery.','Regulatory compliance costs up 12% following new prudential requirements.'],recs:['Accelerate digital transformation to capture mobile-first market share.','Implement dynamic pricing to offset inflation-driven margin compression.','Engage proactively with regulators to shape forthcoming policy frameworks.','Diversify revenue streams to reduce concentration risk.']}},
+  {id:'2',title:'Telecom Market Disruption Analysis',industry:'Telecom',date:'28 Jan 2026',frameworks:["Porter's Five Forces"],citations:18,content:{summary:'The South African telecom sector faces significant disruption from OTT players and 5G-driven infrastructure shifts. This memo analyses competitive dynamics and strategic positioning for incumbents.',findings:['Mobile penetration reached 79% in Q4 2025, approaching saturation in urban markets.','5G coverage expanded to 35% from 12% at the start of 2025.','ARPU increased 10.8% YoY to R205 driven by data upselling.','OTT services cannibalised an estimated R2.1bn in voice revenue.'],recs:['Pivot to enterprise and IoT revenue streams to offset voice revenue decline.','Accelerate rural 5G deployment to secure government subsidy allocations.','Develop proprietary fintech offerings leveraging existing mobile money infrastructure.','Form strategic partnerships with OTT providers to capture data traffic monetisation.']}}
+];
+let currentIndustry='Banking';
+let currentPage='dashboard';
+let currentFw='SWOT';
+let currentAnTab='table';
+let selectedMemo=null;
+let charts={};
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const pageMeta={
+  dashboard:{h:'Overview',s:'System summary and recent activity'},
+  sources:{h:'Data Sources',s:'Manage scrapers and manual uploads'},
+  analytics:{h:'Analytics',s:'Comparison tables and trend visualisations'},
+  memos:{h:'Memos',s:'AI-generated strategic analysis documents'},
+  frameworks:{h:'Frameworks',s:"SWOT · Porter's Five Forces · PESTEL"},
+};
+
+function nav(id, el){
+  // desktop nav
+  document.querySelectorAll('.sidebar .nav-item').forEach(n=>n.classList.remove('active'));
+  // mobile nav
+  document.querySelectorAll('.mob-nav-item').forEach(n=>n.classList.remove('active'));
+  // activate correct items
+  if(el.classList.contains('nav-item')) el.classList.add('active');
+  if(el.classList.contains('mob-nav-item')) el.classList.add('active');
+  // also sync the other nav
+  const matchDesktop = document.querySelector(`.sidebar .nav-item[onclick*="'${id}'"]`);
+  const matchMobile = document.querySelector(`.mob-nav-item[data-page="${id}"]`);
+  if(matchDesktop) matchDesktop.classList.add('active');
+  if(matchMobile) matchMobile.classList.add('active');
+  document.querySelectorAll('[id^="pg-"]').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('pg-'+id).classList.remove('hidden');
+  document.getElementById('page-h1').textContent=pageMeta[id].h;
+  document.getElementById('page-sub').textContent=pageMeta[id].s;
+  currentPage=id;
+  if(id==='dashboard') initDashboard();
+  if(id==='sources') renderSources();
+  if(id==='analytics') renderAnalytics();
+  if(id==='memos') renderMemos();
+  if(id==='frameworks') renderFrameworks();
+}
+
+// ── INDUSTRY ─────────────────────────────────────────────────────────────────
+function toggleIndustry(){
+  currentIndustry=currentIndustry==='Banking'?'Telecom':'Banking';
+  const dot=document.getElementById('ind-dot');
+  dot.style.color=currentIndustry==='Banking'?'var(--accent-blue)':'var(--accent-cyan)';
+  document.getElementById('ind-label').textContent=currentIndustry;
+  if(currentPage==='analytics') renderAnalytics();
+  if(currentPage==='sources') renderSources();
+  if(currentPage==='memos') renderMemos();
+  if(currentPage==='frameworks') renderFrameworks();
+}
+
+// ── DASHBOARD CHARTS ──────────────────────────────────────────────────────────
+function initDashboard(){
+  const chartDefaults={responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#4a5568',font:{size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#4a5568',font:{size:11}}}}};
+  if(charts.trend){charts.trend.destroy()}
+  if(charts.ind){charts.ind.destroy()}
+  const trend=document.getElementById('trendChart').getContext('2d');
+  charts.trend=new Chart(trend,{type:'line',data:{labels:['Jan 24','Jan 25','Jan 26','Jan 27','Jan 28','Jan 29','Jan 30'],datasets:[{data:[120,189,95,210,167,250,443],borderColor:'#4d9ef7',borderWidth:2,fill:true,backgroundColor:'rgba(77,158,247,0.08)',tension:0.4,pointBackgroundColor:'#4d9ef7',pointRadius:3}]},options:{...chartDefaults}});
+  const ind=document.getElementById('industryChart').getContext('2d');
+  charts.ind=new Chart(ind,{type:'bar',data:{labels:['Banking','Telecom'],datasets:[{data:[443,122],backgroundColor:['#00e5a0','#4d9ef7'],borderRadius:4,borderSkipped:false}]},options:{...chartDefaults}});
+}
+
+// ── SOURCES ───────────────────────────────────────────────────────────────────
+function renderSources(){
+  const tbody=document.getElementById('sources-tbody');
+  const filtered=SOURCES.filter(s=>s.industry===currentIndustry);
+  const total=filtered.reduce((a,s)=>a+s.records,0);
+  document.getElementById('src-total-records').textContent=total.toLocaleString();
+  tbody.innerHTML=filtered.map(s=>`
+    <tr>
+      <td><div style="font-weight:500;color:var(--text-primary);font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">${s.url}</div></td>
+      <td><span class="badge ${s.industry==='Banking'?'b-blue':'b-green'}">${s.industry}</span></td>
+      <td style="font-weight:600;color:var(--text-primary)">${s.records.toLocaleString()}</td>
+      <td style="font-size:12px">${s.scraped||'—'}</td>
+      <td><span class="badge b-green">● Active</span></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="scrapeSource('${s.id}',this)">↻ Scrape</button></td>
+    </tr>`).join('');
+}
+
+function scrapeSource(id,btn){
+  btn.textContent='…';btn.disabled=true;
+  setTimeout(()=>{
+    const added=Math.floor(Math.random()*40+10);
+    SOURCES=SOURCES.map(s=>s.id===id?{...s,records:s.records+added,scraped:'Just now'}:s);
+    renderSources();
+    btn.textContent='↻ Scrape';btn.disabled=false;
+    toast(`Scraped ${added} new records`,'✓');
+  },1500);
+}
+
+function showAddSource(){document.getElementById('modal-add').classList.remove('hidden')}
+function showUpload(){document.getElementById('modal-upload').classList.remove('hidden')}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+
+function addSource(){
+  const name=document.getElementById('src-name').value;
+  const url=document.getElementById('src-url').value;
+  const ind=document.getElementById('src-ind').value;
+  if(!name||!url)return;
+  SOURCES.push({id:Date.now().toString(),name,url,industry:ind,status:'active',scraped:'Just now',records:0});
+  renderSources();
+  closeModal('modal-add');
+  toast(`Source "${name}" added`,'⊞');
+  document.getElementById('src-name').value='';
+  document.getElementById('src-url').value='';
+}
+
+function handleUpload(inp){
+  const file=inp.files[0];if(!file)return;
+  const ind=document.getElementById('up-ind').value;
+  const records=Math.floor(Math.random()*60+20);
+  SOURCES.push({id:Date.now().toString(),name:`Upload: ${file.name}`,url:'manual-upload',industry:ind,status:'active',scraped:'Just now',records});
+  closeModal('modal-upload');
+  toast(`Imported ${records} records from ${file.name}`,'↑');
+  if(currentPage==='sources')renderSources();
+}
+
+// ── ANALYTICS ────────────────────────────────────────────────────────────────
+function renderAnalytics(){
+  const tbl=currentIndustry==='Banking'?BANKING_TABLE:TELECOM_TABLE;
+  document.getElementById('analytics-badge').textContent=`${currentIndustry} Sector · Q4 2025`;
+  document.getElementById('an-table-title').textContent=`${currentIndustry} — Key Performance Metrics`;
+  document.getElementById('an-trend-title').textContent=`${currentIndustry} — Trend Analysis`;
+  document.getElementById('mkt-sub').textContent=`${currentIndustry} · Q4 2025`;
+  // table
+  const t=document.getElementById('analytics-table');
+  t.innerHTML=`<thead><tr>${tbl.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${tbl.rows.map(row=>`<tr>${row.map((c,j)=>j===row.length-1?`<td><span class="${c==='↑'?'t-up':'t-down'}">${c}</span></td>`:`<td style="${j===0?'font-weight:500;color:var(--text-primary)':'color:var(--text-secondary)'}">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  // market chart
+  setTimeout(()=>{
+    if(currentAnTab==='trends') renderTrendChart();
+    if(currentAnTab==='market') renderMarketChart();
+  },50);
+}
+
+function renderTrendChart(){
+  if(charts.trendAn){charts.trendAn.destroy()}
+  const data=currentIndustry==='Banking'?{labels:['Q1 2025','Q2 2025','Q3 2025','Q4 2025'],sets:[{l:'ROE (%)',d:[14.1,14.8,15.2,15.7],c:'#4d9ef7'},{l:'NPL Ratio (%)',d:[4.2,4.0,3.8,3.6],c:'#00e5a0'}]}:{labels:['Q1 2025','Q2 2025','Q3 2025','Q4 2025'],sets:[{l:'Mobile Penetration (%)',d:[68,71,75,79],c:'#4d9ef7'},{l:'5G Coverage (%)',d:[12,18,26,35],c:'#00e5a0'}]};
+  const ctx=document.getElementById('trendAnalyticsChart').getContext('2d');
+  charts.trendAn=new Chart(ctx,{type:'line',data:{labels:data.labels,datasets:data.sets.map(s=>({label:s.l,data:s.d,borderColor:s.c,borderWidth:2,fill:false,tension:0.4,pointBackgroundColor:s.c,pointRadius:4}))},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#8b9ab8',font:{size:11}}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#4a5568',font:{size:11}}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#4a5568',font:{size:11}}}}}});
+}
+
+function renderMarketChart(){
+  const mkt=currentIndustry==='Banking'?BANKING_MARKET:TELECOM_MARKET;
+  if(charts.mkt){charts.mkt.destroy()}
+  const ctx=document.getElementById('marketChart').getContext('2d');
+  charts.mkt=new Chart(ctx,{type:'doughnut',data:{labels:mkt.map(m=>m.n),datasets:[{data:mkt.map(m=>m.v),backgroundColor:COLORS,borderWidth:0,hoverBorderWidth:2,hoverBorderColor:'rgba(255,255,255,0.2)'}]},options:{responsive:true,maintainAspectRatio:true,cutout:'55%',plugins:{legend:{labels:{color:'#8b9ab8',font:{size:11}}}}}});
+  document.getElementById('market-breakdown').innerHTML=mkt.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="width:9px;height:9px;border-radius:50%;background:${COLORS[i]};flex-shrink:0;box-shadow:0 0 7px ${COLORS[i]}"></div>
+      <div style="flex:1;font-size:12.5px;color:var(--text-secondary)">${m.n}</div>
+      <div style="font-family:var(--font-display);font-weight:700;font-size:15px">${m.v}%</div>
+      <div style="width:72px;height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden"><div style="width:${m.v}%;height:100%;background:${COLORS[i]};border-radius:2px"></div></div>
+    </div>`).join('');
+}
+
+function analyticsTab(tab,el){
+  currentAnTab=tab;
+  document.querySelectorAll('#pg-analytics .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['table','trends','market'].forEach(t=>{
+    document.getElementById('an-'+t).classList.toggle('hidden',t!==tab);
+  });
+  if(tab==='trends'){setTimeout(renderTrendChart,50);}
+  if(tab==='market'){setTimeout(renderMarketChart,50);}
+}
+
+// ── MEMOS ─────────────────────────────────────────────────────────────────────
+function renderMemos(){
+  const filtered=MEMOS.filter(m=>m.industry===currentIndustry);
+  document.getElementById('memos-count').textContent=`${filtered.length} memos`;
+  document.getElementById('memos-list').innerHTML=filtered.length===0?`<div class="card" style="text-align:center;padding:40px;color:var(--text-muted)">No memos for ${currentIndustry} yet. Generate your first one.</div>`:filtered.map(m=>`
+    <div class="card" style="cursor:pointer" onclick="expandMemo('${m.id}',this)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <div style="font-family:var(--font-display);font-size:14.5px;font-weight:600;margin-bottom:7px">${m.title}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span class="badge ${m.industry==='Banking'?'b-blue':'b-green'}">${m.industry}</span>
+            ${m.frameworks.map(f=>`<span class="badge b-purple">${f}</span>`).join('')}
+            <span class="badge b-gray">${m.citations} citations</span>
+            <span style="font-size:10.5px;color:var(--text-muted)">${m.date}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;margin-left:12px">
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toast('Exported as Word document','↓')">↓ .docx</button>
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toast('Exported as PDF','↓')">↓ PDF</button>
+        </div>
+      </div>
+      <div id="memo-body-${m.id}" class="hidden" style="margin-top:18px;border-top:1px solid var(--border);padding-top:18px">
+        <div class="memo-content">
+          <div style="margin-bottom:18px"><div class="memo-sec-title">Executive Summary</div><div class="memo-body">${m.content.summary}</div></div>
+          <div style="margin-bottom:18px"><div class="memo-sec-title">Key Findings</div><ul class="memo-list">${m.content.findings.map(f=>`<li>${f}</li>`).join('')}</ul></div>
+          <div style="margin-bottom:18px"><div class="memo-sec-title">Strategic Recommendations</div><ul class="memo-list">${m.content.recs.map(r=>`<li>${r}</li>`).join('')}</ul></div>
+          <div style="padding:9px 13px;background:rgba(77,158,247,0.05);border-radius:8px;border:1px solid rgba(77,158,247,0.1);font-size:11.5px;color:var(--text-muted)">Frameworks used: ${m.frameworks.join(' · ')} · ${m.citations} sources cited</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function expandMemo(id,el){
+  const body=document.getElementById('memo-body-'+id);
+  body.classList.toggle('hidden');
+}
+
+function showGenMemo(){document.getElementById('modal-memo').classList.remove('hidden')}
+function toggleFw(btn){
+  const isPrimary=btn.classList.contains('btn-primary');
+  btn.classList.toggle('btn-primary',!isPrimary);
+  btn.classList.toggle('btn-secondary',isPrimary);
+}
+
+function generateMemo(){
+  const ind=document.getElementById('memo-ind').value;
+  const title=document.getElementById('memo-title').value||`${ind} Strategic Analysis — January 2026`;
+  const selectedFws=[...document.querySelectorAll('.fw-btn.btn-primary')].map(b=>b.dataset.fw);
+  if(!selectedFws.length){toast('Select at least one framework','⚠');return;}
+  const btn=document.querySelector('#modal-memo .btn-primary:last-child');
+  btn.textContent='Generating…';btn.disabled=true;
+  setTimeout(()=>{
+    MEMOS.unshift({id:Date.now().toString(),title,industry:ind,date:'Just now',frameworks:selectedFws,citations:Math.floor(Math.random()*15+10),content:{summary:`This strategic analysis examines the ${ind} sector using macroeconomic indicators from approved sources. Key findings point to growth opportunities alongside structural risks requiring immediate strategic attention.`,findings:[`The ${ind} sector demonstrates resilient growth metrics heading into Q1 2026.`,'Macroeconomic headwinds from global rate conditions continue to influence domestic dynamics.','Digital service adoption is outpacing traditional channel utilisation across demographics.','Regulatory changes are reshaping competitive advantages for incumbents and new entrants alike.'],recs:['Prioritise digital infrastructure investment to maintain competitive positioning.','Develop scenario-based financial models accounting for continued rate volatility.','Engage with industry bodies to influence emerging regulatory frameworks.','Explore strategic acquisition opportunities in adjacent digital service categories.']}});
+    closeModal('modal-memo');
+    renderMemos();
+    btn.textContent='◈ Generate';btn.disabled=false;
+    document.getElementById('memo-title').value='';
+    toast('Memo generated successfully','◈');
+  },1800);
+}
+
+// ── FRAMEWORKS ─────────────────────────────────────────────────────────────────
+function fwTab(fw,el){
+  currentFw=fw;
+  document.querySelectorAll('#pg-frameworks .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('fw-type-badge').textContent=fw==='Porter'?"Porter's Five Forces":fw;
+  ['swot','pestel','porter'].forEach(t=>document.getElementById('fw-'+t).classList.add('hidden'));
+  document.getElementById('fw-'+fw.toLowerCase()).classList.remove('hidden');
+  renderFrameworks();
+}
+
+function renderFrameworks(){
+  document.getElementById('fw-ind-badge').textContent=currentIndustry;
+  const swot=currentIndustry==='Banking'?BANKING_SWOT:TELECOM_SWOT;
+  const pestel=currentIndustry==='Banking'?BANKING_PESTEL:TELECOM_PESTEL;
+  const porter=currentIndustry==='Banking'?BANKING_PORTER:TELECOM_PORTER;
+  // SWOT
+  document.getElementById('swot-grid').innerHTML=[
+    {k:'strengths',l:'Strengths',i:'↑'},{k:'weaknesses',l:'Weaknesses',i:'↓'},
+    {k:'opportunities',l:'Opportunities',i:'◎'},{k:'threats',l:'Threats',i:'⚠'}
+  ].map(({k,l,i})=>`<div class="swot-cell ${k}"><div class="swot-label">${i} ${l}</div>${swot[k].map(s=>`<div class="swot-item">${s}</div>`).join('')}</div>`).join('');
+  // PESTEL
+  const pColors=['#4d9ef7','#00e5a0','#f59e0b','#00d4ff','#a78bfa','#f56565'];
+  document.getElementById('pestel-grid').innerHTML=Object.entries(pestel).map(([k,v],i)=>`
+    <div class="pestel-cell">
+      <div class="pestel-letter" style="color:${pColors[i]}">${k[0]}</div>
+      <div class="pestel-title">${k}</div>
+      <div class="pestel-text">${v}</div>
+    </div>`).join('');
+  // Porter
+  const avg=(Object.values(porter).reduce((a,f)=>a+f.r,0)/Object.values(porter).length).toFixed(1);
+  document.getElementById('porter-card').innerHTML=`
+    <div class="card-header"><div><div class="card-title">Porter's Five Forces — ${currentIndustry}</div><div class="card-sub">Competitive intensity · Scale: 1 (Low) → 5 (High)</div></div></div>
+    ${Object.entries(porter).map(([n,f])=>{const pct=(f.r/5)*100;const cls=pct>=70?'high':pct>=40?'med':'low';const clrMap={high:'var(--accent-red)',med:'var(--accent-amber)',low:'var(--accent-green)'};return`
+    <div class="force-item">
+      <div class="force-name">${n}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
+          <div class="force-track" style="flex:1"><div class="force-fill ${cls}" style="width:${pct}%"></div></div>
+          <span style="font-size:11.5px;font-weight:600;color:${clrMap[cls]};width:28px">${f.r}/5</span>
+          <span class="badge ${cls==='high'?'b-amber':cls==='med'?'b-blue':'b-green'}" style="font-size:10px">${cls==='high'?'High':cls==='med'?'Moderate':'Low'}</span>
+        </div>
+        <div class="force-desc">${f.d}</div>
+      </div>
+    </div>`}).join('')}
+    <div style="margin-top:14px;padding:11px 14px;background:rgba(77,158,247,0.04);border-radius:8px;border:1px solid rgba(77,158,247,0.08);font-size:11.5px;color:var(--text-muted)">
+      Overall competitive intensity: <strong style="color:var(--accent-amber)">${avg}/5</strong> — Moderately competitive environment with selective high-intensity forces.
+    </div>`;
+}
+
+function runFramework(){
+  toast(`${currentFw==='Porter'?"Porter's Five Forces":currentFw} analysis refreshed`,'◉');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg,icon='✓'){
+  const el=document.getElementById('toast-el');
+  el.innerHTML=`<span style="font-size:14px">${icon}</span>${msg}`;
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.add('hidden'),3000);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  initDashboard();
+  renderSources();
+  renderAnalytics();
+  renderMemos();
+  renderFrameworks();
+});
+</script>
+</body>
+</html>
